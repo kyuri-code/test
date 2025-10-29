@@ -70,6 +70,23 @@ This is an MVP (Minimum Viable Product) implementation with the following charac
 - RESTful API design
 - Error handling and user feedback
 
+## Repository Sync
+
+This repository is configured to automatically sync its contents to the `kyuri-code/test2` repository. The sync process:
+
+- Runs automatically on pushes to the main branch
+- Can be triggered manually via GitHub Actions
+- Copies all repository contents except the `.git` directory
+- Maintains the target repository's git history
+
+For more details, see [SYNC_CONFIG.md](SYNC_CONFIG.md).
+
+### Manual Sync
+You can also run the sync manually using the provided script:
+```bash
+./sync-to-test2.sh [GITHUB_TOKEN]
+```
+
 ## Future Enhancements
 
 - Database integration (SQLite, PostgreSQL, MongoDB)
