@@ -36,7 +36,7 @@ header {
 }
 
 header h1 {
-    font-size: 16px;
+    font-size: 14px;
     margin-bottom: 4px;
     font-weight: bold;
     font-family: "MS Sans Serif", Arial, sans-serif;
@@ -146,7 +146,7 @@ main {
 
 .list-header h2 {
     color: #000000;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     font-family: "MS Sans Serif", Arial, sans-serif;
 }
@@ -177,7 +177,7 @@ main {
 .filter-btn.active {
     background: #000080;
     color: white;
-    border: 2px inset #c0c0c0;
+    border: 2px outset #000080;
 }
 
 /* Todo items */
@@ -198,7 +198,7 @@ main {
 }
 
 .todo-item:hover {
-    background: #ffffcc;
+    background: #d4d0c8;
 }
 
 .todo-item.completed {
