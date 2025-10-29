@@ -42,17 +42,39 @@ fi
 
 # Configure git in the target repository
 cd "$TEMP_DIR"
-git config user.name "Sync Script"
-git config user.email "sync@example.com"
+
+# Verify we're in the right directory
+if [ ! -d ".git" ]; then
+    echo -e "${RED}Error: Not in a git repository directory. Aborting.${NC}"
+    exit 1
+fi
+
+git config user.name "Repository Sync"
+git config user.email "noreply@github.com"
 
 # Remove all files except .git
 echo "Clearing target repository contents..."
-find . -maxdepth 1 -not -name '.git' -not -name '.' -not -name '..' -exec rm -rf {} + 2>/dev/null || true
+if [ ! -d ".git" ]; then
+    echo -e "${RED}Error: Not in a git repository directory. Aborting.${NC}"
+    exit 1
+fi
 
-# Copy all files from source to target (except .git)
+# Safely remove files, excluding .git and being explicit about what we're removing
+find . -maxdepth 1 -type f -not -name '.gitignore' -delete 2>/dev/null || true
+find . -maxdepth 1 -type d -not -name '.git' -not -name '.' -not -name '..' -exec rm -rf {} + 2>/dev/null || true
+
+# Copy all files from source to target (using rsync for safety)
 echo "Copying files from source repository..."
 cd "$SOURCE_DIR"
-find . -maxdepth 1 -not -name '.git' -not -name 'sync-to-test2.sh' -not -name '.' -not -name '..' -exec cp -r {} "$TEMP_DIR/" \;
+
+# Use rsync for safer copying with explicit exclusions
+if command -v rsync >/dev/null 2>&1; then
+    rsync -av --exclude='.git' --exclude='sync-to-test2.sh' --exclude='.' --exclude='..' . "$TEMP_DIR/"
+else
+    # Fallback to cp with explicit file type checks
+    find . -maxdepth 1 -type f -not -name 'sync-to-test2.sh' -exec cp {} "$TEMP_DIR/" \;
+    find . -maxdepth 1 -type d -not -name '.git' -not -name '.' -not -name '..' -exec cp -r {} "$TEMP_DIR/" \;
+fi
 
 # Commit and push changes
 cd "$TEMP_DIR"

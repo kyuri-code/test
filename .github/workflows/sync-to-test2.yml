@@ -8,6 +8,8 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
     - name: Checkout source repository
@@ -18,8 +20,8 @@ jobs:
     
     - name: Setup Git
       run: |
-        git config --global user.name 'GitHub Actions'
-        git config --global user.email 'actions@github.com'
+        git config --global user.name 'GitHub Actions Sync'
+        git config --global user.email 'noreply@github.com'
     
     - name: Clone target repository
       run: |
@@ -29,13 +31,26 @@ jobs:
     
     - name: Sync files to target repository
       run: |
-        # Remove existing files in target repo (except .git)
+        # Verify we're in the right place and remove existing files
         cd target-repo
-        find . -maxdepth 1 -not -name '.git' -not -name '.' -not -name '..' -exec rm -rf {} + 2>/dev/null || true
+        if [ ! -d ".git" ]; then
+          echo "Error: Not in a git repository directory. Aborting."
+          exit 1
+        fi
         
-        # Copy all files from source to target (except .git and sync script)
+        # Safely remove files, excluding .git
+        find . -maxdepth 1 -type f -not -name '.gitignore' -delete 2>/dev/null || true
+        find . -maxdepth 1 -type d -not -name '.git' -not -name '.' -not -name '..' -exec rm -rf {} + 2>/dev/null || true
+        
+        # Copy files using rsync for safety
         cd ..
-        find . -maxdepth 1 -not -name '.git' -not -name 'target-repo' -not -name 'sync-to-test2.sh' -not -name '.' -not -name '..' -exec cp -r {} target-repo/ \;
+        if command -v rsync >/dev/null 2>&1; then
+          rsync -av --exclude='.git' --exclude='target-repo' --exclude='sync-to-test2.sh' . target-repo/
+        else
+          # Fallback to explicit copying
+          find . -maxdepth 1 -type f -not -name 'sync-to-test2.sh' -exec cp {} target-repo/ \;
+          find . -maxdepth 1 -type d -not -name '.git' -not -name 'target-repo' -not -name '.' -not -name '..' -exec cp -r {} target-repo/ \;
+        fi
         
         # Stage changes
         cd target-repo
