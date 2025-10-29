@@ -180,9 +180,9 @@ class TodoApp {
             this.emptyState.style.display = 'block';
             
             if (this.todos.length === 0) {
-                this.emptyState.innerHTML = '<p>🎉 No tasks yet! Add one above to get started.</p>';
+                this.emptyState.innerHTML = '<p>No tasks found. Use the form above to add new tasks.</p>';
             } else {
-                this.emptyState.innerHTML = `<p>📝 No ${this.currentFilter} tasks found.</p>`;
+                this.emptyState.innerHTML = `<p>No ${this.currentFilter} tasks found.</p>`;
             }
             return;
         }
@@ -217,7 +217,7 @@ class TodoApp {
                         data-id="${todo.id}"
                         title="Delete task"
                     >
-                        🗑️
+                        Delete
                     </button>
                 </div>
             </li>
