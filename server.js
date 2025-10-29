@@ -56,7 +56,11 @@ app.put('/api/todos/:id', (req, res) => {
 
   // Update fields if provided
   if (text !== undefined) {
-    todos[todoIndex].text = text.trim();
+    const trimmedText = text.trim();
+    if (trimmedText === '') {
+      return res.status(400).json({ error: 'Todo text cannot be empty' });
+    }
+    todos[todoIndex].text = trimmedText;
   }
   
   if (completed !== undefined) {

@@ -203,19 +203,18 @@ class TodoApp {
                     type="checkbox" 
                     class="todo-checkbox" 
                     ${todo.completed ? 'checked' : ''}
-                    onchange="app.updateTodo(${todo.id}, { completed: this.checked })"
+                    data-id="${todo.id}"
                 >
                 <input 
                     type="text" 
                     class="todo-text" 
                     value="${this.escapeHtml(todo.text)}"
-                    onblur="app.updateTodo(${todo.id}, { text: this.value })"
-                    onkeypress="if(event.key === 'Enter') this.blur()"
+                    data-id="${todo.id}"
                 >
                 <div class="todo-actions">
                     <button 
                         class="delete-btn" 
-                        onclick="app.deleteTodo(${todo.id})"
+                        data-id="${todo.id}"
                         title="Delete task"
                     >
                         🗑️
@@ -226,8 +225,35 @@ class TodoApp {
     }
 
     attachTodoEventListeners() {
-        // Additional event listeners can be attached here if needed
-        // Currently using inline event handlers for simplicity
+        // Attach event listeners to checkboxes
+        document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                this.updateTodo(id, { completed: e.target.checked });
+            });
+        });
+
+        // Attach event listeners to text inputs
+        document.querySelectorAll('.todo-text').forEach(textInput => {
+            textInput.addEventListener('blur', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                this.updateTodo(id, { text: e.target.value });
+            });
+            
+            textInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.target.blur();
+                }
+            });
+        });
+
+        // Attach event listeners to delete buttons
+        document.querySelectorAll('.delete-btn').forEach(deleteBtn => {
+            deleteBtn.addEventListener('click', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                this.deleteTodo(id);
+            });
+        });
     }
 
     updateStats() {
@@ -256,6 +282,3 @@ class TodoApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new TodoApp();
 });
-
-// Expose app globally for inline event handlers
-window.app = null;
